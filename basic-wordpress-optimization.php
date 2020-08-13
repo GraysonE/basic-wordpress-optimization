@@ -51,14 +51,16 @@ remove_action( 'wp_head', 'wlwmanifest_link' );
  * WordPress added JQuery migration from version 3.6. This is not needed if you are using the latest version of JQuery
  * and themes/plugin are compatible with it.
  *
- * WARNING!!! THIS WILL BREAK FRONT ENDS.
+ * WARNING!!! THIS WILL BREAK FRONT ENDS. THE ROI OF DOING THIS IS FRANKLY NOT WORTH IT.
  */
-function deregister_jquery() {
+function upgrade_jquery() {
 	if ( ! is_admin() ) {
 		wp_deregister_script( 'jquery' );
+		wp_enqueue_script( 'jquery-updated', 'https://code.jquery.com/jquery-3.5.1.slim.min.js' );
+		wp_enqueue_script( 'jquery-migrate', 'https://code.jquery.com/jquery-migrate-3.3.1.min.js' );
 	}
 }
-//add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\deregister_jquery' );
+//add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\upgrade_jquery' );
 
 /**
  * I don’t know why you need the self-pingback details on your blog post and I know it’s not just I get annoyed. If you
@@ -102,34 +104,3 @@ add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\wpdocs_dequeue_dashicon' );
  */
 //add_filter( 'wpcf7_load_js', '__return_false' );
 //add_filter( 'wpcf7_load_css', '__return_false' );
-
-/**
- * See all enqueued scripts and dequeue them as you need.
- */
-
-function print_scripts_styles() {
-
-	$result            = [];
-	$result['scripts'] = [];
-	$result['styles']  = [];
-
-	// Print all loaded Scripts
-	global $wp_scripts;
-	foreach ( $wp_scripts->queue as $script ) :
-		$result['scripts'][] = $wp_scripts->registered[ $script ]->src . ";";
-	endforeach;
-
-	// Print all loaded Styles (CSS)
-	global $wp_styles;
-	foreach ( $wp_styles->queue as $style ) :
-		$result['styles'][] = $wp_styles->registered[ $style ]->src . ";";
-	endforeach;
-
-	return $result;
-
-//	echo '<pre>';
-//	print_r( $result );
-//	echo '</pre>';
-//	die();
-}
-add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\print_scripts_styles' );
